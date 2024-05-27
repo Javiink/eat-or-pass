@@ -17,6 +17,7 @@ export class DishesService {
       temperature: 0.7,
     });
 
+    console.log(result.toAIStreamResponse());
     return result.toAIStreamResponse();
   }
 }

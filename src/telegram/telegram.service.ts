@@ -1,12 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { Action, Ctx, Hears, Start, Update } from 'nestjs-telegraf';
 import { Context, Markup } from 'telegraf';
-import { UsersService } from '../users/users.service';
+import { DishesService } from '../dishes/dishes.service';
 
 @Update()
 @Injectable()
 export class TelegramService {
-  constructor(private usersService: UsersService) {}
+  constructor(private dishesService: DishesService) {}
 
   @Start()
   async startCommand(ctx: Context) {
@@ -15,6 +15,7 @@ export class TelegramService {
 
   @Hears('asd')
   async hears(@Ctx() ctx: Context) {
+    const newDish = this.dishesService.getDish();
     await ctx.reply(
       'a ver a ver',
       Markup.inlineKeyboard([
