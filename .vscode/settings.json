@@ -1,3 +1,8 @@
 {
     "material-icon-theme.activeIconPack": "nest",
+    "files.exclude": {
+        ".history": true
+    },
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "discord.enabled": false
 }
