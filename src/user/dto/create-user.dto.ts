@@ -6,7 +6,7 @@ export class CreateUserDto {
   readonly id: string;
 
   @ApiProperty({
-    example: 'User',
+    example: 'John Doe',
   })
   readonly name?: string;
 }

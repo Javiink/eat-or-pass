@@ -2,17 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { Action, Ctx, Hears, On, Start, Update } from 'nestjs-telegraf';
 import { Context, Markup } from 'telegraf';
 import { DishesService } from '../dishes/dishes.service';
-import { AiService } from 'src/ai/ai.service';
-import { UserService } from 'src/user/user.service';
 
 @Update()
 @Injectable()
 export class TelegramService {
-  constructor(
-    private dishesService: DishesService,
-    private userService: UserService,
-    private aiSeervice: AiService,
-  ) {}
+  constructor(private dishesService: DishesService) {}
 
   @Start()
   async startCommand(ctx: Context) {
@@ -39,8 +33,20 @@ export class TelegramService {
   @On('message')
   async testMessage(@Ctx() ctx: Context) {
     const msg = ctx.text;
-    if (msg.startsWith('#userdish\n')) {
+    if (msg.startsWith('#userdishes')) {
       this.dishesService.requestDishforUserId(ctx.from.id.toString());
+    } else if (msg.startsWith('#add-dish-like')) {
+      await this.dishesService.addDishForUserId(
+        ctx.from.id.toString(),
+        msg.split('\n').slice(1)[0],
+        true,
+      );
+    } else if (msg.startsWith('#add-dish-dislike')) {
+      this.dishesService.addDishForUserId(
+        ctx.from.id.toString(),
+        msg.split('\n').slice(1)[0],
+        false,
+      );
     }
   }
 }

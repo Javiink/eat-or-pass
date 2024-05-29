@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schemas/user.schema';
 import { Model } from 'mongoose';
+import { UpdateUserLikesDto } from './dto/update-user-likes.dto';
 
 @Injectable()
 export class UserService {
@@ -14,12 +15,22 @@ export class UserService {
     return this.userModel.create(createUserDto);
   }
 
+  async update(id: string, user: User) {
+    return await this.userModel.updateOne({ id }, user).exec();
+  }
+
+  async updateDishes(id: string, updateUserLikesDto: UpdateUserLikesDto) {
+    return await this.userModel
+      .updateOne({ id }, { $push: updateUserLikesDto })
+      .exec();
+  }
+
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
   }
 
   async findOne(id: string): Promise<User> {
-    return this.userModel.findOne({ _id: id }).exec();
+    return this.userModel.findOne({ id }).exec();
   }
 
   async findOneOrCreate(id: string) {
