@@ -3,7 +3,7 @@ export class CreateUserDto {
   @ApiProperty({
     example: '55555555',
   })
-  readonly id: number;
+  readonly id: string;
 
   @ApiProperty({
     example: 'User',

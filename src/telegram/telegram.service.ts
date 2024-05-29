@@ -2,11 +2,17 @@ import { Injectable } from '@nestjs/common';
 import { Action, Ctx, Hears, On, Start, Update } from 'nestjs-telegraf';
 import { Context, Markup } from 'telegraf';
 import { DishesService } from '../dishes/dishes.service';
+import { AiService } from 'src/ai/ai.service';
+import { UserService } from 'src/user/user.service';
 
 @Update()
 @Injectable()
 export class TelegramService {
-  constructor(private dishesService: DishesService) {}
+  constructor(
+    private dishesService: DishesService,
+    private userService: UserService,
+    private aiSeervice: AiService,
+  ) {}
 
   @Start()
   async startCommand(ctx: Context) {
@@ -15,7 +21,6 @@ export class TelegramService {
 
   @Hears('asd')
   async hears(@Ctx() ctx: Context) {
-    const newDish = this.dishesService.getDish();
     await ctx.reply(
       'a ver a ver',
       Markup.inlineKeyboard([
@@ -32,12 +37,10 @@ export class TelegramService {
   }
 
   @On('message')
-  async test(@Ctx() ctx: Context) {
+  async testMessage(@Ctx() ctx: Context) {
     const msg = ctx.text;
-    if (msg.startsWith('#test\n')) {
-      const text = msg.split('\n').slice(1).join('\n');
-      const res = await this.dishesService.getDish(text);
-      ctx.reply(res);
+    if (msg.startsWith('#userdish\n')) {
+      this.dishesService.requestDishforUserId(ctx.from.id.toString());
     }
   }
 }

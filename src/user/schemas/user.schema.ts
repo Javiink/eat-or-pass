@@ -9,10 +9,10 @@ export class User {
   id: string;
 
   @Prop()
-  like: string[];
+  like?: string[];
 
   @Prop()
-  dislike: string[];
+  dislike?: string[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
