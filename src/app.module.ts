@@ -9,6 +9,8 @@ import { TelegrafModule } from 'nestjs-telegraf';
 import { DishesService } from './dishes/dishes.service';
 import { UserModule } from './user/user.module';
 import { AiService } from './ai/ai.service';
+import { ImagesService } from './images/images.service';
+import { HttpModule } from '@nestjs/axios';
 
 @Module({
   imports: [
@@ -28,8 +30,15 @@ import { AiService } from './ai/ai.service';
     }),
     AuthModule,
     UserModule,
+    HttpModule,
   ],
   controllers: [AppController],
-  providers: [AppService, TelegramService, DishesService, AiService],
+  providers: [
+    AppService,
+    TelegramService,
+    DishesService,
+    AiService,
+    ImagesService,
+  ],
 })
 export class AppModule {}
