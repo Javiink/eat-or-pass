@@ -3,6 +3,8 @@
     "files.exclude": {
         ".history": true
     },
-    "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "discord.enabled": false
+    "files.eol": "\n",
+    "[typescript]": {
+        "editor.defaultFormatter": "esbenp.prettier-vscode"
+    }
 }
