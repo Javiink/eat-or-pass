@@ -52,26 +52,6 @@ export class UserService {
         },
       })
       .exec();
-    /* const user = await this.userModel
-      .aggregate([
-        {
-          $match: {
-            id: userId,
-          },
-          $limit: 1,
-        },
-        {
-          $project: {
-            liked: {
-              $slice: ['$liked', likedNumber * -1],
-            },
-            disliked: {
-              $slice: ['$disliked', dislikedNumber * -1],
-            },
-          },
-        },
-      ])
-      .exec(); */
 
     console.log('getLastDishesForUserId user:', user);
     return {
