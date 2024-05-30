@@ -45,6 +45,24 @@ export class UserService {
     return await this.userModel.updateOne({ id }, { pending: dishName });
   }
 
+  async getPendingDishById(id: number) {
+    return await this.userModel.findOne({ id }, 'pending');
+  }
+
+  async persistPendingDishChoice(id: number, action: 'like' | 'dislike') {
+    console.log(id, action);
+    return await this.userModel
+      //.updateOne({ id }, [{ $push: { [action]: ['$pending'] } }])
+      .updateOne({ id }, [
+        {
+          $push: {
+            [action]: ['$pending'],
+          },
+        },
+      ])
+      .exec();
+  }
+
   async getLatestDishesForUser(fromUser: CreateUserDto) {
     const userCount = await this.userModel.countDocuments({
       id: fromUser.id,

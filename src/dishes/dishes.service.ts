@@ -44,6 +44,26 @@ export class DishesService {
     return newDish;
   }
 
+  async resolvePendingDish(userId: number, action: 'like' | 'dislike') {
+    const pendingDish = await this.userService.getPendingDishById(userId);
+    if (!pendingDish.pending) {
+      return false;
+    }
+    return (
+      await this.userService.updateDishes(userId, {
+        [action]: pendingDish.pending,
+      })
+    ).acknowledged;
+  }
+
+  /**
+   *
+   * @param userId
+   * @param dish
+   * @param liked
+   * @returns
+   * @deprecated
+   */
   async addDishForUserId(userId: number, dish: string, liked: boolean) {
     const data: UpdateUserLikesDto = {};
     if (!liked) {

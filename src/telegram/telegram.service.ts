@@ -33,8 +33,12 @@ export class TelegramService {
 
   @Action('like')
   async like(@Ctx() ctx: Context) {
-    console.log(ctx);
-    await ctx.reply('like');
+    this.dishesService.resolvePendingDish(ctx.from.id, 'like');
+  }
+
+  @Action('dislike')
+  async dislike(@Ctx() ctx: Context) {
+    this.dishesService.resolvePendingDish(ctx.from.id, 'dislike');
   }
 
   @On('message')
