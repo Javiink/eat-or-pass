@@ -19,9 +19,9 @@ export class UserService {
     return await this.userModel.updateOne({ id }, user).exec();
   }
 
-  async updateDishes(id: string, updateUserLikesDto: UpdateUserLikesDto) {
+  async updateDishes(userId: number, updateUserLikesDto: UpdateUserLikesDto) {
     return await this.userModel
-      .updateOne({ id }, { $push: updateUserLikesDto })
+      .updateOne({ userId }, { $push: updateUserLikesDto })
       .exec();
   }
 
@@ -29,21 +29,24 @@ export class UserService {
     return this.userModel.find().exec();
   }
 
-  async findOne(id: string): Promise<User> {
+  async findOneById(id: number): Promise<User> {
     return this.userModel.findOne({ id }).exec();
   }
 
-  async findOneOrCreate(id: string) {
-    let user = await this.findOne(id);
+  async findOneOrCreate(fromUser: CreateUserDto) {
+    let user = await this.findOneById(fromUser.id);
     if (!user) {
-      user = await this.create({ id });
+      user = await this.create(fromUser);
     }
     return user;
   }
 
-  async getLatestDishesForUserId(userId: string) {
-    if ((await this.userModel.countDocuments({ id: userId })) < 1) {
-      await this.create({ id: userId }); // Create the user if it does not exist
+  async getLatestDishesForUser(fromUser: CreateUserDto) {
+    const userCount = await this.userModel.countDocuments({
+      id: fromUser.id,
+    });
+    if (userCount < 1) {
+      await this.create(fromUser); // Create the user if it does not exist
     }
 
     const latestNumber = parseInt(process.env.LATEST_DISHES_NUMBER);
@@ -52,7 +55,7 @@ export class UserService {
     const likedNumber = latestNumber - dislikedNumber;
     const user = await this.userModel
       .aggregate()
-      .match({ id: userId })
+      .match({ id: fromUser.id })
       .limit(1)
       .project({
         liked: {
@@ -64,7 +67,7 @@ export class UserService {
       })
       .exec();
 
-    console.log('getLastDishesForUserId user:', user);
+    console.log('getLatestDishesForUserId user:', user);
     return {
       liked: { ...user[0].liked },
       disliked: { ...user[0].disliked },

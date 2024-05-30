@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AiService } from 'src/ai/ai.service';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UpdateUserLikesDto } from 'src/user/dto/update-user-likes.dto';
 import { UserService } from 'src/user/user.service';
 
@@ -19,14 +20,14 @@ export class DishesService {
     private readonly aiService: AiService,
   ) {}
 
-  async requestDishforUserId(userId: string) {
+  async requestDishforUser(fromUser: CreateUserDto) {
     const latestDishes =
-      await this.userService.getLatestDishesForUserId(userId);
+      await this.userService.getLatestDishesForUser(fromUser);
     console.log(JSON.stringify(latestDishes));
     //return await this.aiService.generateDish(latestDishes);
   }
 
-  async addDishForUserId(userId: string, dish: string, liked: boolean) {
+  async addDishForUserId(userId: number, dish: string, liked: boolean) {
     const data: UpdateUserLikesDto = {};
     if (!liked) {
       data.dislike = dish;

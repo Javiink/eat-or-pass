@@ -3,17 +3,20 @@ import { Action, Ctx, Hears, On, Start, Update } from 'nestjs-telegraf';
 import { Context, Markup } from 'telegraf';
 import { Dish, DishesService } from '../dishes/dishes.service';
 import { ImagesService } from 'src/images/images.service';
+import { UserService } from 'src/user/user.service';
 
 @Update()
 @Injectable()
 export class TelegramService {
   constructor(
     private dishesService: DishesService,
+    private userService: UserService,
     private imagesService: ImagesService,
   ) {}
 
   @Start()
   async startCommand(ctx: Context) {
+    await this.userService.create(ctx.from);
     await ctx.reply('Holi');
   }
 
@@ -38,16 +41,16 @@ export class TelegramService {
   async testMessage(@Ctx() ctx: Context) {
     const msg = ctx.text;
     if (msg.startsWith('#userdishes')) {
-      this.dishesService.requestDishforUserId(ctx.from.id.toString());
+      this.dishesService.requestDishforUser(ctx.from);
     } else if (msg.startsWith('#add-dish-like')) {
       await this.dishesService.addDishForUserId(
-        ctx.from.id.toString(),
+        ctx.from.id,
         msg.split('\n').slice(1)[0],
         true,
       );
     } else if (msg.startsWith('#add-dish-dislike')) {
       this.dishesService.addDishForUserId(
-        ctx.from.id.toString(),
+        ctx.from.id,
         msg.split('\n').slice(1)[0],
         false,
       );
@@ -58,7 +61,7 @@ export class TelegramService {
       ctx.replyWithMarkdownV2(imgUrl);
     } else if (msg.startsWith('#suggestion')) {
       /* const dish = this.dishesService.requestDishforUserId(
-        ctx.from.id.toString(),
+        ctx.from.id,
       ); */
       const dish: Dish = {
         name: 'Spaghetti Bolognese',
@@ -73,7 +76,7 @@ export class TelegramService {
         },
       };
       dish.imgUrl = await this.imagesService.getImageForDish(dish.name);
-      ctx.replyWithMarkdownV2(await this.composeDishMessage(dish), {
+      ctx.replyWithMarkdownV2(await this.composeMessage(dish), {
         link_preview_options: {
           url: dish.imgUrl,
           prefer_large_media: true,
@@ -84,7 +87,7 @@ export class TelegramService {
     }
   }
 
-  async composeDishMessage(dish: Dish) {
+  async composeMessage(dish: Dish) {
     const allergenString = this.dishesService.renderAllergens(dish.allergens);
     const msg = `*🍽️ ${dish.name}*\n\n${dish.vegetarian ? '🌱 Vegetarian\n\n' : ''}${allergenString}
     `;
