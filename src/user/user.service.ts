@@ -49,20 +49,6 @@ export class UserService {
     return await this.userModel.findOne({ id }, 'pending');
   }
 
-  async persistPendingDishChoice(id: number, action: 'like' | 'dislike') {
-    console.log(id, action);
-    return await this.userModel
-      //.updateOne({ id }, [{ $push: { [action]: ['$pending'] } }])
-      .updateOne({ id }, [
-        {
-          $push: {
-            [action]: ['$pending'],
-          },
-        },
-      ])
-      .exec();
-  }
-
   async getLatestDishesForUser(fromUser: CreateUserDto) {
     const userCount = await this.userModel.countDocuments({
       id: fromUser.id,
@@ -80,19 +66,19 @@ export class UserService {
       .match({ id: fromUser.id })
       .limit(1)
       .project({
-        liked: {
-          $slice: ['$liked', likedNumber * -1],
+        like: {
+          $slice: ['$like', -likedNumber],
         },
-        disliked: {
-          $slice: ['$disliked', dislikedNumber * -1],
+        dislike: {
+          $slice: ['$dislike', -dislikedNumber],
         },
       })
       .exec();
 
     console.log('getLatestDishesForUserId user:', user);
     return {
-      liked: { ...user[0].liked },
-      disliked: { ...user[0].disliked },
+      like: [...user[0].like],
+      dislike: [...user[0].dislike],
     };
   }
 }

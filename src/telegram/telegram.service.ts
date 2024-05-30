@@ -64,9 +64,6 @@ export class TelegramService {
       );
       ctx.replyWithMarkdownV2(imgUrl);
     } else if (msg.startsWith('#suggestion')) {
-      /* const dish = this.dishesService.requestDishforUser(
-        ctx.from,
-      ); */
       const dish = await this.dishesService.requestDishforUser(ctx.from);
       ctx.replyWithMarkdownV2(await this.composeDishMessage(dish), {
         link_preview_options: {

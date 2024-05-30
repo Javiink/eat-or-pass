@@ -25,9 +25,9 @@ export class DishesService {
   async requestDishforUser(fromUser: CreateUserDto) {
     const latestDishes =
       await this.userService.getLatestDishesForUser(fromUser);
-    console.log(JSON.stringify(latestDishes));
-    //const newDish: Dish = await this.aiService.generateDish(latestDishes);
-    const newDish: Dish = {
+    console.log('latestDishes', latestDishes);
+    const newDish: Dish = await this.aiService.generateDish(latestDishes);
+    /* const newDish: Dish = {
       name: 'Spaghetti Bolognese',
       vegetarian: false,
       allergens: {
@@ -38,7 +38,7 @@ export class DishesService {
         lactose: false,
         gluten: true,
       },
-    };
+    }; */
     newDish.imgUrl = await this.imagesService.getImageForDish(newDish.name);
     this.userService.savePendingDishById(fromUser.id, newDish.name);
     return newDish;
