@@ -13,6 +13,9 @@ export class User {
 
   @Prop()
   dislike?: string[];
+
+  @Prop()
+  pending?: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

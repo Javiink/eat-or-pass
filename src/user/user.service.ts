@@ -41,6 +41,10 @@ export class UserService {
     return user;
   }
 
+  async savePendingDishById(id: number, dishName: string) {
+    return await this.userModel.updateOne({ id }, { pending: dishName });
+  }
+
   async getLatestDishesForUser(fromUser: CreateUserDto) {
     const userCount = await this.userModel.countDocuments({
       id: fromUser.id,

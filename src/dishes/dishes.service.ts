@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { AiService } from 'src/ai/ai.service';
+import { ImagesService } from 'src/images/images.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { UpdateUserLikesDto } from 'src/user/dto/update-user-likes.dto';
 import { UserService } from 'src/user/user.service';
@@ -18,13 +19,29 @@ export class DishesService {
   constructor(
     private readonly userService: UserService,
     private readonly aiService: AiService,
+    private imagesService: ImagesService,
   ) {}
 
   async requestDishforUser(fromUser: CreateUserDto) {
     const latestDishes =
       await this.userService.getLatestDishesForUser(fromUser);
     console.log(JSON.stringify(latestDishes));
-    //return await this.aiService.generateDish(latestDishes);
+    //const newDish: Dish = await this.aiService.generateDish(latestDishes);
+    const newDish: Dish = {
+      name: 'Spaghetti Bolognese',
+      vegetarian: false,
+      allergens: {
+        nut: false,
+        fish: false,
+        egg: true,
+        crustaceans: false,
+        lactose: false,
+        gluten: true,
+      },
+    };
+    newDish.imgUrl = await this.imagesService.getImageForDish(newDish.name);
+    this.userService.savePendingDishById(fromUser.id, newDish.name);
+    return newDish;
   }
 
   async addDishForUserId(userId: number, dish: string, liked: boolean) {

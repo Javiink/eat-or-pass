@@ -31,10 +31,10 @@ export class TelegramService {
     );
   }
 
-  @Action('button1')
-  async hearsButton1(@Ctx() ctx: Context) {
+  @Action('like')
+  async like(@Ctx() ctx: Context) {
     console.log(ctx);
-    await ctx.reply('button 1');
+    await ctx.reply('like');
   }
 
   @On('message')
@@ -60,36 +60,33 @@ export class TelegramService {
       );
       ctx.replyWithMarkdownV2(imgUrl);
     } else if (msg.startsWith('#suggestion')) {
-      /* const dish = this.dishesService.requestDishforUserId(
-        ctx.from.id,
+      /* const dish = this.dishesService.requestDishforUser(
+        ctx.from,
       ); */
-      const dish: Dish = {
-        name: 'Spaghetti Bolognese',
-        vegetarian: false,
-        allergens: {
-          nut: false,
-          fish: false,
-          egg: true,
-          crustaceans: false,
-          lactose: false,
-          gluten: true,
-        },
-      };
-      dish.imgUrl = await this.imagesService.getImageForDish(dish.name);
-      ctx.replyWithMarkdownV2(await this.composeMessage(dish), {
+      const dish = await this.dishesService.requestDishforUser(ctx.from);
+      ctx.replyWithMarkdownV2(await this.composeDishMessage(dish), {
         link_preview_options: {
           url: dish.imgUrl,
           prefer_large_media: true,
           show_above_text: true,
         },
+        reply_markup: this.composeDishInlineKeyboard(),
       });
     }
   }
 
-  async composeMessage(dish: Dish) {
+  async composeDishMessage(dish: Dish) {
     const allergenString = this.dishesService.renderAllergens(dish.allergens);
     const msg = `*🍽️ ${dish.name}*\n\n${dish.vegetarian ? '🌱 Vegetarian\n\n' : ''}${allergenString}
     `;
     return msg;
+  }
+
+  composeDishInlineKeyboard() {
+    const keyboard = Markup.inlineKeyboard([
+      Markup.button.callback('✅ Eat ✅', `like`),
+      Markup.button.callback('❌ Pass ❌', `dislike`),
+    ]).reply_markup;
+    return keyboard;
   }
 }
