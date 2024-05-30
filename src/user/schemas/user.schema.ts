@@ -6,7 +6,7 @@ export type UserDocument = User & Document;
 @Schema()
 export class User {
   @Prop()
-  id: string;
+  id: number;
 
   @Prop()
   like?: string[];
