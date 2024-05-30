@@ -19,9 +19,9 @@ export class UserService {
     return await this.userModel.updateOne({ id }, user).exec();
   }
 
-  async updateDishes(userId: number, updateUserLikesDto: UpdateUserLikesDto) {
+  async updateDishes(id: number, updateUserLikesDto: UpdateUserLikesDto) {
     return await this.userModel
-      .updateOne({ userId }, { $push: updateUserLikesDto })
+      .updateOne({ id }, { $push: updateUserLikesDto })
       .exec();
   }
 
