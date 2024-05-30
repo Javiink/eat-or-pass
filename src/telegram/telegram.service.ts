@@ -83,7 +83,6 @@ export class TelegramService {
           show_above_text: true,
         },
       });
-      //ctx.replyWithHTML(imgUrl, {link_preview_options})
     }
   }
 
