@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TelegramService } from './telegram/telegram.service';
@@ -28,7 +27,6 @@ import { HttpModule } from '@nestjs/axios';
     TelegrafModule.forRoot({
       token: process.env.TG_BOT_API,
     }),
-    AuthModule,
     UserModule,
     HttpModule,
   ],
