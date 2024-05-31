@@ -27,8 +27,11 @@ export class DishesService {
       await this.userService.getLatestDishesForUser(fromUser);
     console.log('latestDishes', latestDishes);
     const newDish: Dish = await this.aiService.generateDish(latestDishes);
+
     /* const newDish: Dish = {
-      name: 'Spaghetti Bolognese',
+      name: 'Beef and Broccoli Stir-Fry',
+      description:
+        'Tender beef strips stir-fried with broccoli florets in a savory sauce.',
       vegetarian: false,
       allergens: {
         nut: false,
@@ -38,7 +41,11 @@ export class DishesService {
         lactose: false,
         gluten: true,
       },
-    }; */
+    };
+    newDish.name = this.aiService.escapeMarkdown(newDish.name);
+    newDish.description = this.aiService.escapeMarkdown(newDish.description);
+    console.log(newDish); */
+
     newDish.imgUrl = await this.imagesService.getImageForDish(newDish.name);
     this.userService.savePendingDishById(fromUser.id, newDish.name);
     return newDish;
@@ -89,6 +96,7 @@ export class DishesService {
 
 export type Dish = {
   name: string;
+  description: string;
   imgUrl?: string;
   vegetarian: boolean;
   allergens: {

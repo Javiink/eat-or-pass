@@ -67,10 +67,10 @@ export class UserService {
       .limit(1)
       .project({
         like: {
-          $slice: ['$like', -likedNumber],
+          $slice: ['$like', likedNumber * -1],
         },
         dislike: {
-          $slice: ['$dislike', -dislikedNumber],
+          $slice: ['$dislike', dislikedNumber * -1],
         },
       })
       .exec();

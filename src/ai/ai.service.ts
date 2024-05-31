@@ -18,8 +18,38 @@ export class AiService {
     }).catch((e) => {
       throw new Error(`Error querying Gemini API: ${e}`);
     });
+    const response = this.escapeMarkdown(result.text);
+    console.log('escaped', response);
+    return JSON.parse(response);
+  }
 
-    console.log(result);
-    return JSON.parse(result.text);
+  escapeMarkdown(input: string): string {
+    const escapeChars = [
+      '\\',
+      '*',
+      '_',
+      '~',
+      '{',
+      '}',
+      '[',
+      ']',
+      '(',
+      ')',
+      '#',
+      '+',
+      '-',
+      '.',
+      '!',
+      '`',
+      '>',
+      '|',
+    ];
+    let escapedString = input;
+    escapeChars.forEach((char) => {
+      const escapedChar = '\\' + char;
+      const regex = new RegExp(`\\${char}`, 'g');
+      escapedString = escapedString.replace(regex, escapedChar);
+    });
+    return escapedString;
   }
 }

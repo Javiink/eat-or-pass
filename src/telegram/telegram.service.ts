@@ -78,8 +78,7 @@ export class TelegramService {
 
   async composeDishMessage(dish: Dish) {
     const allergenString = this.dishesService.renderAllergens(dish.allergens);
-    const msg = `*🍽️ ${dish.name}*\n\n${dish.vegetarian ? '🌱 Vegetarian\n\n' : ''}${allergenString}
-    `;
+    const msg = `*🍽️ ${dish.name}*\n\n🔍 ${dish.description}\n\n${dish.vegetarian ? '🌱 Vegetarian\n\n' : ''}${allergenString}`;
     return msg;
   }
 
