@@ -34,13 +34,13 @@ export class TelegramService {
   }
 
   @Action('firstSuggestion')
-  async firstSuggestion(@Ctx() ctx: Context) {
+  async firstSuggestionAction(@Ctx() ctx: Context) {
     ctx.editMessageReplyMarkup(Markup.inlineKeyboard([]).reply_markup);
-    this.suggestion(ctx);
+    this.suggestionCommand(ctx);
   }
 
   @Command('suggestion')
-  async suggestion(@Ctx() ctx: Context) {
+  async suggestionCommand(@Ctx() ctx: Context) {
     const lookingMsg = await ctx.sendMessage(
       '🔎 Looking for your ideal dish...',
     );
@@ -49,13 +49,19 @@ export class TelegramService {
     await ctx.deleteMessage(lookingMsg.message_id);
   }
 
+  @Command('likes')
+  async likesCommand(@Ctx() ctx: Context) {
+    const liked = await this.dishesService.getLikedDishesForUser(ctx.from);
+    await ctx.sendMessage(`✅ These are the dishes you liked:\n\n${liked}`);
+  }
+
   @Action('like')
-  async like(@Ctx() ctx: Context) {
+  async likeAction(@Ctx() ctx: Context) {
     this.messageAction(ctx, 'like');
   }
 
   @Action('dislike')
-  async dislike(@Ctx() ctx: Context) {
+  async dislikeAction(@Ctx() ctx: Context) {
     this.messageAction(ctx, 'dislike');
   }
 

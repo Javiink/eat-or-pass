@@ -62,6 +62,11 @@ export class DishesService {
     return (await this.userService.updateDishes(userId, data)).acknowledged;
   }
 
+  async getLikedDishesForUser(user: CreateUserDto) {
+    const likedDishes = await this.userService.getLatestLikesById(user.id, 30);
+    return likedDishes[0].like.join('\n');
+  }
+
   renderAllergens(allergens: { [key: string]: boolean }) {
     if (Object.keys(allergens).length < 1) return false;
 

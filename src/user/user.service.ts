@@ -80,4 +80,17 @@ export class UserService {
       dislike: [...user[0].dislike],
     };
   }
+
+  async getLatestLikesById(id: number, number: number) {
+    return await this.userModel
+      .aggregate()
+      .match({ id })
+      .limit(1)
+      .project({
+        like: {
+          $slice: ['$like', number * -1],
+        },
+      })
+      .exec();
+  }
 }
