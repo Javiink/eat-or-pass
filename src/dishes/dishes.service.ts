@@ -22,29 +22,10 @@ export class DishesService {
     private imagesService: ImagesService,
   ) {}
 
-  async requestDishforUser(fromUser: CreateUserDto) {
+  async requestDishforUser(fromUser: CreateUserDto): Promise<Dish> {
     const latestDishes =
       await this.userService.getLatestDishesForUser(fromUser);
-    console.log('latestDishes', latestDishes);
     const newDish: Dish = await this.aiService.generateDish(latestDishes);
-
-    /* const newDish: Dish = {
-      name: 'Beef and Broccoli Stir-Fry',
-      description:
-        'Tender beef strips stir-fried with broccoli florets in a savory sauce.',
-      vegetarian: false,
-      allergens: {
-        nut: false,
-        fish: false,
-        egg: true,
-        crustaceans: false,
-        lactose: false,
-        gluten: true,
-      },
-    };
-    newDish.name = this.aiService.escapeMarkdown(newDish.name);
-    newDish.description = this.aiService.escapeMarkdown(newDish.description);
-    console.log(newDish); */
 
     newDish.imgUrl = await this.imagesService.getImageForDish(newDish.name);
     this.userService.savePendingDishById(fromUser.id, newDish.name);
@@ -82,6 +63,8 @@ export class DishesService {
   }
 
   renderAllergens(allergens: { [key: string]: boolean }) {
+    if (Object.keys(allergens).length < 1) return false;
+
     const allergenList: string[] = ['Allergens:'];
 
     for (const key in allergens) {
@@ -94,6 +77,7 @@ export class DishesService {
   }
 }
 
+//TODO: Make this a DTO
 export type Dish = {
   name: string;
   description: string;

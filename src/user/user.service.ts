@@ -75,7 +75,6 @@ export class UserService {
       })
       .exec();
 
-    console.log('getLatestDishesForUserId user:', user);
     return {
       like: [...user[0].like],
       dislike: [...user[0].dislike],

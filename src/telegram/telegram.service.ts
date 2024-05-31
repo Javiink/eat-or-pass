@@ -1,5 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { Action, Ctx, Hears, On, Start, Update } from 'nestjs-telegraf';
+import {
+  Action,
+  Command,
+  Ctx,
+  Hears,
+  On,
+  Start,
+  Update,
+} from 'nestjs-telegraf';
 import { Context, Markup } from 'telegraf';
 import { Dish, DishesService } from '../dishes/dishes.service';
 import { ImagesService } from 'src/images/images.service';
@@ -16,29 +24,39 @@ export class TelegramService {
 
   @Start()
   async startCommand(ctx: Context) {
-    await this.userService.create(ctx.from);
-    await ctx.reply('Holi');
+    await this.userService.findOneOrCreate(ctx.from);
+    await ctx.replyWithHTML(
+      "<b>Hello! 🙂</b>\nI'm here to find some dishes that you'd love.🍝\n\n<b>🤔 How do this works?</b>\nI will send you dishes, and you have the choice to eat them or pass. Based on your previous choices, I will recommend new dishes through AI.\n\nShould we start? 🤤",
+      {
+        reply_markup: this.composeWelcomeInlineKeyboard(),
+      },
+    );
   }
 
-  @Hears('asd')
-  async hears(@Ctx() ctx: Context) {
-    await ctx.reply(
-      'a ver a ver',
-      Markup.inlineKeyboard([
-        Markup.button.callback('', `${ctx.from.id}|`),
-        Markup.button.callback('', `${ctx.from.id}|`),
-      ]),
+  @Action('firstSuggestion')
+  async firstSuggestion(@Ctx() ctx: Context) {
+    ctx.editMessageReplyMarkup(Markup.inlineKeyboard([]).reply_markup);
+    this.suggestion(ctx);
+  }
+
+  @Command('suggestion')
+  async suggestion(@Ctx() ctx: Context) {
+    const lookingMsg = await ctx.sendMessage(
+      '🔎 Looking for your ideal dish...',
     );
+    const dish = await this.dishesService.requestDishforUser(ctx.from);
+    await this.sendDishMessage(ctx, dish);
+    await ctx.deleteMessage(lookingMsg.message_id);
   }
 
   @Action('like')
   async like(@Ctx() ctx: Context) {
-    this.dishesService.resolvePendingDish(ctx.from.id, 'like');
+    this.messageAction(ctx, 'like');
   }
 
   @Action('dislike')
   async dislike(@Ctx() ctx: Context) {
-    this.dishesService.resolvePendingDish(ctx.from.id, 'dislike');
+    this.messageAction(ctx, 'dislike');
   }
 
   @On('message')
@@ -64,21 +82,46 @@ export class TelegramService {
       );
       ctx.replyWithMarkdownV2(imgUrl);
     } else if (msg.startsWith('#suggestion')) {
-      const dish = await this.dishesService.requestDishforUser(ctx.from);
-      ctx.replyWithMarkdownV2(await this.composeDishMessage(dish), {
-        link_preview_options: {
-          url: dish.imgUrl,
-          prefer_large_media: true,
-          show_above_text: true,
-        },
-        reply_markup: this.composeDishInlineKeyboard(),
-      });
     }
+  }
+
+  async messageAction(ctx: Context, action: 'like' | 'dislike') {
+    ctx.editMessageReplyMarkup(Markup.inlineKeyboard([]).reply_markup);
+    if (action == 'like') {
+      ctx.answerCbQuery('🌟 Added to your likes!');
+    } else {
+      ctx.answerCbQuery('💔 Not your type, okay!');
+    }
+    const lookingMsg = await ctx.sendMessage(
+      '🔎 Looking for your ideal dish...',
+    );
+
+    this.dishesService.resolvePendingDish(ctx.from.id, action);
+
+    const dish = await this.dishesService.requestDishforUser(ctx.from);
+    await this.sendDishMessage(ctx, dish);
+    await ctx.deleteMessage(lookingMsg.message_id);
+  }
+
+  async sendDishMessage(ctx: Context, dish: Dish) {
+    const extra = {
+      link_preview_options: {
+        url: dish.imgUrl,
+        prefer_large_media: true,
+        show_above_text: true,
+      },
+      reply_markup: this.composeDishInlineKeyboard(),
+    };
+
+    return await ctx.replyWithMarkdownV2(
+      await this.composeDishMessage(dish),
+      extra,
+    );
   }
 
   async composeDishMessage(dish: Dish) {
     const allergenString = this.dishesService.renderAllergens(dish.allergens);
-    const msg = `*🍽️ ${dish.name}*\n\n🔍 ${dish.description}\n\n${dish.vegetarian ? '🌱 Vegetarian\n\n' : ''}${allergenString}`;
+    const msg = `*🍽️ ${dish.name}*\n\nℹ️ ${dish.description}\n\n${dish.vegetarian ? '🌱 Vegetarian\n\n' : ''}${allergenString}`;
     return msg;
   }
 
@@ -86,6 +129,16 @@ export class TelegramService {
     const keyboard = Markup.inlineKeyboard([
       Markup.button.callback('✅ Eat ✅', `like`),
       Markup.button.callback('❌ Pass ❌', `dislike`),
+    ]).reply_markup;
+    return keyboard;
+  }
+
+  composeWelcomeInlineKeyboard() {
+    const keyboard = Markup.inlineKeyboard([
+      Markup.button.callback(
+        '🔎 Find my ideal dish please!',
+        `firstSuggestion`,
+      ),
     ]).reply_markup;
     return keyboard;
   }

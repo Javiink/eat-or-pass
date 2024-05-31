@@ -9,6 +9,12 @@ export class User {
   id: number;
 
   @Prop()
+  username?: string;
+
+  @Prop()
+  first_name?: string;
+
+  @Prop()
   like?: string[];
 
   @Prop()
