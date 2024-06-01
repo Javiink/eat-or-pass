@@ -36,7 +36,6 @@ export class AiService {
         const dish: Dish = JSON.parse(response); //TODO: This should map to a DTO
         dish.name = this.escapeMarkdown(dish.name);
         dish.description = this.escapeMarkdown(dish.description);
-        console.log('dish', dish);
         return dish;
       })
       .catch((err) => {
