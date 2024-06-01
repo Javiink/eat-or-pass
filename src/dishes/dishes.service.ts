@@ -67,16 +67,14 @@ export class DishesService {
     return likedDishes[0].like.join('\n');
   }
 
-  renderAllergens(allergens: { [key: string]: boolean }) {
-    if (Object.keys(allergens).length < 1) return false;
+  renderAllergens(allergens: string[]) {
+    if (allergens.length < 1) return '';
 
     const allergenList: string[] = ['Allergens:'];
 
-    for (const key in allergens) {
-      if (allergens[key]) {
-        allergenList.push(this.allergenMap[key]);
-      }
-    }
+    allergens.forEach((allergen) => {
+      allergenList.push(this.allergenMap[allergen]);
+    });
 
     return allergenList.join('\n');
   }
@@ -89,12 +87,5 @@ export type Dish = {
   imgUrl?: string;
   vegetarian: boolean;
   ethnicity: string;
-  allergens: {
-    nut: boolean;
-    egg: boolean;
-    fish: boolean;
-    crustaceans: boolean;
-    lactose: boolean;
-    gluten: boolean;
-  };
+  allergens: ['nut' | 'egg' | 'fish' | 'crustaceans' | 'lactose' | 'gluten'];
 };
