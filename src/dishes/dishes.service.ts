@@ -88,6 +88,7 @@ export type Dish = {
   description: string;
   imgUrl?: string;
   vegetarian: boolean;
+  ethnicity: string;
   allergens: {
     nut: boolean;
     egg: boolean;
