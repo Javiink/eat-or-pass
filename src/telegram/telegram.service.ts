@@ -65,32 +65,6 @@ export class TelegramService {
     this.messageAction(ctx, 'dislike');
   }
 
-  @On('message')
-  async testMessage(@Ctx() ctx: Context) {
-    const msg = ctx.text;
-    if (msg.startsWith('#userdishes')) {
-      this.dishesService.requestDishforUser(ctx.from);
-    } else if (msg.startsWith('#add-dish-like')) {
-      await this.dishesService.addDishForUserId(
-        ctx.from.id,
-        msg.split('\n').slice(1)[0],
-        true,
-      );
-    } else if (msg.startsWith('#add-dish-dislike')) {
-      this.dishesService.addDishForUserId(
-        ctx.from.id,
-        msg.split('\n').slice(1)[0],
-        false,
-      );
-    } else if (msg.startsWith('#image')) {
-      const imgUrl = await this.imagesService.getImageForDish(
-        msg.split('\n').slice(1)[0],
-      );
-      ctx.replyWithMarkdownV2(imgUrl);
-    } else if (msg.startsWith('#suggestion')) {
-    }
-  }
-
   async messageAction(ctx: Context, action: 'like' | 'dislike') {
     ctx.editMessageReplyMarkup(Markup.inlineKeyboard([]).reply_markup);
     if (action == 'like') {
@@ -127,7 +101,7 @@ export class TelegramService {
 
   async composeDishMessage(dish: Dish) {
     const allergenString = this.dishesService.renderAllergens(dish.allergens);
-    const msg = `*🍽️ ${dish.name}*\n\nℹ️ ${dish.description}\n\n${dish.vegetarian ? '🌱 Vegetarian\n\n' : ''}${allergenString}`;
+    const msg = `*🍽️ ${dish.name}*\n\n🌐 ${dish.ethnicity}\nℹ️ ${dish.description}\n\n${dish.vegetarian ? '🌱 Vegetarian\n\n' : ''}${allergenString}`;
     return msg;
   }
 
