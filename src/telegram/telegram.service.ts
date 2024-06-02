@@ -14,6 +14,10 @@ export class TelegramService {
     private imagesService: ImagesService,
   ) {}
 
+  /**
+   * Sends a welcoming message to the user with a button to request a dish suggestion
+   * @param ctx Context
+   */
   @Start()
   async startCommand(ctx: Context) {
     try {
@@ -29,12 +33,21 @@ export class TelegramService {
     }
   }
 
+  /**
+   * Deletes the like/dislike buttons from the message and calls the suggestion manager
+   * @param ctx Context
+   */
   @Action('getSuggestion')
   getSuggestionAction(@Ctx() ctx: Context) {
     ctx.editMessageReplyMarkup(Markup.inlineKeyboard([]).reply_markup);
     this.suggestionCommand(ctx);
   }
 
+  /**
+   * Sends a "looking for a dish..." message to the user and then calls the dish requester. If a dish is successfully generated, sends it to the user. If generation fails, warns the user and shows a button to retry in the "looking for a dish" message
+   * @param ctx Context
+   * @returns void
+   */
   @Command('suggestion')
   async suggestionCommand(@Ctx() ctx: Context) {
     try {
@@ -64,6 +77,10 @@ export class TelegramService {
     }
   }
 
+  /**
+   * Sends a message to the user with their latest liked dishes
+   * @param ctx Context
+   */
   @Command('likes')
   async likesCommand(@Ctx() ctx: Context) {
     try {
@@ -84,6 +101,11 @@ export class TelegramService {
     this.messageAction(ctx, 'dislike');
   }
 
+  /**
+   * Resolves the like status of the pending dish based on the action
+   * @param ctx Context
+   * @param action 'like' | 'dislike'
+   */
   async messageAction(ctx: Context, action: 'like' | 'dislike') {
     try {
       ctx.editMessageReplyMarkup(Markup.inlineKeyboard([]).reply_markup);
@@ -101,6 +123,12 @@ export class TelegramService {
     }
   }
 
+  /**
+   * Sends a dish to the user for them to like or dislike
+   * @param ctx Context
+   * @param dish Dish
+   * @returns Promise<Message.TextMessage>
+   */
   async sendDishMessage(ctx: Context, dish: Dish) {
     const extra = {
       link_preview_options: {
@@ -121,12 +149,21 @@ export class TelegramService {
     }
   }
 
+  /**
+   * Composes a pretty dish message based on input
+   * @param dish Dish
+   * @returns string
+   */
   composeDishMessage(dish: Dish) {
     const allergenString = this.dishesService.renderAllergens(dish.allergens);
     const msg = `*🍽️ ${dish.name}*\n\n🌐 ${dish.ethnicity}\nℹ️ ${dish.description}\n\n${dish.vegetarian ? '🌱 Vegetarian\n\n' : ''}${allergenString}`;
     return msg;
   }
 
+  /**
+   * Generates an inline keyboard with like and dislike options
+   * @returns InlineKeyboardMarkup
+   */
   composeDishInlineKeyboard() {
     const keyboard = Markup.inlineKeyboard([
       Markup.button.callback('✅ Eat ✅', `like`),
@@ -135,6 +172,10 @@ export class TelegramService {
     return keyboard;
   }
 
+  /**
+   * Generates an inline keyboard with a button to generate a dish
+   * @returns InlineKeyboardMarkup
+   */
   composeGetDishInlineKeyboard() {
     const keyboard = Markup.inlineKeyboard([
       Markup.button.callback('🔎 Find my ideal dish please!', `getSuggestion`),

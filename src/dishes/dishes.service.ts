@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { AiService } from 'src/ai/ai.service';
 import { ImagesService } from 'src/images/images.service';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
-import { UpdateUserLikesDto } from 'src/user/dto/update-user-likes.dto';
 import { UserService } from 'src/user/user.service';
 
 @Injectable()
@@ -22,6 +21,11 @@ export class DishesService {
     private imagesService: ImagesService,
   ) {}
 
+  /**
+   * Returns a generated dish for the `fromUser` and updates 'pending' field of the database
+   * @param fromUser CreateUserDto
+   * @returns Promise<Dish | false>
+   */
   async requestDishforUser(fromUser: CreateUserDto): Promise<Dish | false> {
     try {
       const latestDishes =
@@ -39,6 +43,12 @@ export class DishesService {
     }
   }
 
+  /**
+   * Resolves pending dish in the user Document moving it to the `action` field
+   * @param userId number
+   * @param action 'like' | 'dislike'
+   * @returns Promise<boolean>
+   */
   async resolvePendingDish(userId: number, action: 'like' | 'dislike') {
     try {
       const pendingDish = await this.userService.getPendingDishById(userId);
@@ -56,23 +66,10 @@ export class DishesService {
   }
 
   /**
-   *
-   * @param userId
-   * @param dish
-   * @param liked
-   * @returns
-   * @deprecated
+   * Returns the latest 30 liked dishes by the `user`
+   * @param user CreateUserDto
+   * @returns Promise
    */
-  async addDishForUserId(userId: number, dish: string, liked: boolean) {
-    const data: UpdateUserLikesDto = {};
-    if (!liked) {
-      data.dislike = dish;
-    } else {
-      data.like = dish;
-    }
-    return (await this.userService.updateDishes(userId, data)).acknowledged;
-  }
-
   async getLikedDishesForUser(user: CreateUserDto) {
     try {
       const likedDishes = await this.userService.getLatestLikesById(
@@ -85,6 +82,11 @@ export class DishesService {
     }
   }
 
+  /**
+   * Returns a formatted allergen string to include in the reply message
+   * @param allergens string[]
+   * @returns string
+   */
   renderAllergens(allergens: string[]) {
     if (allergens.length < 1) return '';
 

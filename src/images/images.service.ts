@@ -14,6 +14,11 @@ export class ImagesService {
 
   constructor(private readonly httpService: HttpService) {}
 
+  /**
+   * Returns an URL to an image related to `dishName`
+   * @param dishName The name of the dish
+   * @returns Promise
+   */
   async getImageForDish(dishName: string) {
     try {
       if (dishName.length < 1) {

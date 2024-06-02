@@ -4,6 +4,11 @@ import { Dish } from 'src/dishes/dishes.service';
 
 @Injectable()
 export class AiService {
+  /**
+   * Returns a new Dish for the user
+   * @param payload The liked and disliked dishes of the user
+   * @returns Promise
+   */
   async generateDish(payload: { like: string[]; dislike: string[] }) {
     try {
       const groq = new Groq({
@@ -48,6 +53,11 @@ export class AiService {
   }
 
   //TODO: This shouldn't be here, make a pipe or service
+  /**
+   * Escapes the `input` of Markdown reserved symbols
+   * @param input The string to escape
+   * @returns string
+   */
   escapeMarkdown(input: string): string {
     const escapeChars = [
       '\\',

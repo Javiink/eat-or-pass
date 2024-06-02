@@ -11,28 +11,49 @@ export class UserService {
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>,
   ) {}
 
+  /**
+   * Creates a new user
+   * @param createUserDto User DTO
+   * @returns Promise
+   */
   async create(createUserDto: CreateUserDto): Promise<User> {
     return this.userModel.create(createUserDto);
   }
 
-  async update(id: string, user: User) {
-    return await this.userModel.updateOne({ id }, user).exec();
-  }
-
+  /**
+   * Adds a dish to the like or dislike field of the user that matches `id`
+   * @param id User ID
+   * @param updateUserLikesDto UpdateUserLikes DTO
+   * @returns Promise
+   */
   async updateDishes(id: number, updateUserLikesDto: UpdateUserLikesDto) {
     return await this.userModel
       .updateOne({ id }, { $push: updateUserLikesDto })
       .exec();
   }
 
+  /**
+   * Returns all the User documents
+   * @returns Promise
+   */
   async findAll(): Promise<User[]> {
     return this.userModel.find().exec();
   }
 
+  /**
+   * Returns one User that matches the `id`
+   * @param id User ID
+   * @returns Promise
+   */
   async findOneById(id: number): Promise<User> {
     return this.userModel.findOne({ id }).exec();
   }
 
+  /**
+   * Returns an User, if no results are found by the User ID, a new one is created
+   * @param fromUser CreateUser DTO
+   * @returns Promise
+   */
   async findOneOrCreate(fromUser: CreateUserDto) {
     let user = await this.findOneById(fromUser.id);
     if (!user) {
@@ -41,15 +62,31 @@ export class UserService {
     return user;
   }
 
+  /**
+   * Updates the pending dish for the user that matches `id`
+   * @param id User ID
+   * @param dishName The name of the dish
+   * @returns Promise
+   */
   async savePendingDishById(id: number, dishName: string) {
     return await this.userModel.updateOne({ id }, { pending: dishName });
   }
 
+  /**
+   * Returns the pending dish for the user that matches the supplied `id`
+   * @param id User ID
+   * @returns Promise
+   */
   async getPendingDishById(id: number) {
     return await this.userModel.findOne({ id }, 'pending');
   }
 
-  async getLatestDishesForUser(fromUser: CreateUserDto) {
+  /**
+   * Returns an object with the latest liked and disliked dish names for the `fromUser`
+   * @param fromUser CreateUser DTO
+   * @returns Promise
+   */
+  async getLatestDishesForUser(fromUser: CreateUserDto): Promise<{like: string[], dislike: string[]}> { 
     const userCount = await this.userModel.countDocuments({
       id: fromUser.id,
     });
@@ -81,6 +118,12 @@ export class UserService {
     };
   }
 
+  /**
+   * Returns the latest `number` of dishes for the user that matches the `id`
+   * @param id User ID
+   * @param number Number of dishes to return
+   * @returns Promise
+   */
   async getLatestLikesById(id: number, number: number) {
     return await this.userModel
       .aggregate()
