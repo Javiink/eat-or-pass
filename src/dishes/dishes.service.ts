@@ -22,26 +22,37 @@ export class DishesService {
     private imagesService: ImagesService,
   ) {}
 
-  async requestDishforUser(fromUser: CreateUserDto): Promise<Dish> {
-    const latestDishes =
-      await this.userService.getLatestDishesForUser(fromUser);
-    const newDish: Dish = await this.aiService.generateDish(latestDishes);
+  async requestDishforUser(fromUser: CreateUserDto): Promise<Dish | false> {
+    try {
+      const latestDishes =
+        await this.userService.getLatestDishesForUser(fromUser);
+      const newDish: Dish | boolean =
+        await this.aiService.generateDish(latestDishes);
+      if (!newDish) return false;
 
-    newDish.imgUrl = await this.imagesService.getImageForDish(newDish.name);
-    this.userService.savePendingDishById(fromUser.id, newDish.name);
-    return newDish;
+      newDish.imgUrl = await this.imagesService.getImageForDish(newDish.name);
+
+      this.userService.savePendingDishById(fromUser.id, newDish.name);
+      return newDish;
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   async resolvePendingDish(userId: number, action: 'like' | 'dislike') {
-    const pendingDish = await this.userService.getPendingDishById(userId);
-    if (!pendingDish.pending) {
-      return false;
+    try {
+      const pendingDish = await this.userService.getPendingDishById(userId);
+      if (!pendingDish.pending) {
+        return false;
+      }
+      return (
+        await this.userService.updateDishes(userId, {
+          [action]: pendingDish.pending,
+        })
+      ).acknowledged;
+    } catch (error) {
+      console.error(error);
     }
-    return (
-      await this.userService.updateDishes(userId, {
-        [action]: pendingDish.pending,
-      })
-    ).acknowledged;
   }
 
   /**
@@ -63,8 +74,15 @@ export class DishesService {
   }
 
   async getLikedDishesForUser(user: CreateUserDto) {
-    const likedDishes = await this.userService.getLatestLikesById(user.id, 30);
-    return likedDishes[0].like.join('\n');
+    try {
+      const likedDishes = await this.userService.getLatestLikesById(
+        user.id,
+        30,
+      );
+      return likedDishes[0].like.join('\n');
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   renderAllergens(allergens: string[]) {
