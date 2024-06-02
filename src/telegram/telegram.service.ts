@@ -23,7 +23,7 @@ export class TelegramService {
     try {
       await this.userService.findOneOrCreate(ctx.from);
       await ctx.replyWithHTML(
-        "<b>Hello! 🙂</b>\nI'm here to find some dishes that you'd love.🍝\n\n<b>🤔 How do this works?</b>\nI will send you dishes, and you have the choice to eat them or pass. Based on your previous choices, I will recommend new dishes through AI.\n\nShould we start? 🤤",
+        "<b>Hello! 🙂</b>\nI'm here to find some dishes that you'd love.🍝\n\n<b>🤔 How do this work?</b>\nI will send you dishes, and you have the choice to eat them or pass. Based on your previous choices, I will recommend new dishes through AI.\n\nShould we start? 🤤",
         {
           reply_markup: this.composeGetDishInlineKeyboard(),
         },
