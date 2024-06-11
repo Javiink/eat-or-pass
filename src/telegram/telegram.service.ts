@@ -60,7 +60,7 @@ export class TelegramService {
           ctx.chat.id,
           lookingMsg.message_id,
           null,
-          `❗ Oops! We couldn't find a dish for you.\nPlease, try again in a while.`,
+          `❗ Oops! We couldn't find a dish for you.\nPlease, try again in a while. ⤵️`,
         );
         await ctx.telegram.editMessageReplyMarkup(
           ctx.chat.id,
