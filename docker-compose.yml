@@ -1,0 +1,48 @@
+services:
+  eat-or-pass-backend:
+    container_name: eat-or-pass-backend
+    image: eat-or-pass-backend
+    build:
+      context: .
+    networks:
+      - eat-or-pass-network
+    restart: unless-stopped
+    depends_on:
+      eat-or-pass-mongodb:
+        condition: service_healthy
+
+  eat-or-pass-mongodb:
+    container_name: eat-or-pass-db
+    image: mongo
+    command: mongod --logpath /dev/null
+    env_file:
+      - .env
+    restart: always
+    ports:
+      - '27019:27017'
+    volumes:
+      - eat-or-pass-db:/data/db
+      - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mongosh",
+          "--quiet",
+          "127.0.0.1/eat-or-pass",
+          "--eval",
+          "'quit(db.runCommand({ ping: 1 }).ok ? 0 : 2)'",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    networks:
+      - eat-or-pass-network
+
+networks:
+  eat-or-pass-network:
+    driver: bridge
+
+volumes:
+  eat-or-pass-db:
